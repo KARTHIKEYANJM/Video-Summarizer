@@ -5,6 +5,7 @@ import re
 from itertools import starmap
 import multiprocessing
 
+# importing all the dependencies and libraries
 import pysrt
 import imageio
 import youtube_dl
@@ -23,7 +24,7 @@ from sumy.summarizers.lsa import LsaSummarizer
 
 imageio.plugins.ffmpeg.download()
 
-
+#summarizing the video file using the srt file attached with the video
 def summarize(srt_file, n_sentences, language="english"):
     """ Generate segmented summary
     Args:
@@ -33,13 +34,14 @@ def summarize(srt_file, n_sentences, language="english"):
     Returns:
         list: segment of subtitles
     """
-    parser = PlaintextParser.from_string(srt_to_txt(srt_file), Tokenizer(language))
-    stemmer = Stemmer(language)
-    summarizer = LsaSummarizer(stemmer)
-    summarizer.stop_words = get_stop_words(language)
+    parser = PlaintextParser.from_string(srt_to_txt(srt_file), Tokenizer(language)) # defining a parser to parse the srt file by converting the srt to text and setting tokenizer language 
+    stemmer = Stemmer(language) # defining the stemming operation to find the root word
+    summarizer = LsaSummarizer(stemmer) # applying LSA summarizer algorithm to find the summarized content from the stemmed words
+    summarizer.stop_words = get_stop_words(language) # to get all the stop words from the language passed
     segment = []
+    # to create a list of segments of summarized sentences to return to the user by maintaining indices using regex
     for sentence in summarizer(parser.document, n_sentences):
-        index = int(re.findall(r"\(([0-9]+)\)", str(sentence))[0])
+        index = int(re.findall(r"\(([0-9]+)\)", str(sentence))[0]) 
         item = srt_file[index]
         segment.append(srt_segment_to_range(item))
     return segment
